@@ -17,7 +17,7 @@ object GameRepositoryImpl: GameRepository {
             options.add(num)
         }
 
-        return Question(sum, visibleNumber, options.toList())
+        return Question(sum, visibleNumber, options.toList().shuffled())
     }
 
     override fun getGameSettings(level: Level): GameSettings {

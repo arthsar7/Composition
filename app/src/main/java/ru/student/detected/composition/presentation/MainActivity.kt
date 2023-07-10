@@ -1,12 +1,14 @@
 package ru.student.detected.composition.presentation
 
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import ru.student.detected.composition.R
+import androidx.appcompat.app.AppCompatActivity
+import ru.student.detected.composition.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
     }
 }
