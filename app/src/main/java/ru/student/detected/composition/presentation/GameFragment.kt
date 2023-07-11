@@ -17,11 +17,11 @@ import ru.student.detected.composition.domain.entity.Level
 class GameFragment : Fragment() {
     private var _binding: FragmentGameBinding? = null
     private lateinit var level: Level
+    private val viewModelFactory by lazy {
+        GameViewModelFactory(requireActivity().application, level)
+    }
     private val viewModel: GameViewModel by lazy {
-        ViewModelProvider(
-            this,
-            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application)
-        )[GameViewModel::class.java]
+        ViewModelProvider(this, viewModelFactory)[GameViewModel::class.java]
     }
     private val binding: FragmentGameBinding
         get() = _binding ?: throw RuntimeException("FragmentGameBinding == null")
@@ -50,8 +50,7 @@ class GameFragment : Fragment() {
             }
         } else {
             requireArguments().getParcelable(
-                KEY_LEVEL,
-                Level::class.java
+                KEY_LEVEL, Level::class.java
             )?.let {
                 level = it
             }
@@ -61,7 +60,6 @@ class GameFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         observeViewModel()
-
     }
 
     private fun observeViewModel() {
@@ -70,18 +68,17 @@ class GameFragment : Fragment() {
                 val options = question.options
                 binding.tvSum.text = question.sum.toString()
                 binding.tvLeftNumber.text = question.visibleNumber.toString()
-                val optionViews =
-                    mutableListOf(
-                        binding.tvOption1,
-                        binding.tvOption2,
-                        binding.tvOption3,
-                        binding.tvOption4,
-                        binding.tvOption5,
-                        binding.tvOption6
-                    )
+                val optionViews = mutableListOf(
+                    binding.tvOption1,
+                    binding.tvOption2,
+                    binding.tvOption3,
+                    binding.tvOption4,
+                    binding.tvOption5,
+                    binding.tvOption6
+                )
                 optionViews.forEachIndexed { index, tv ->
                     tv.text = options[index].toString()
-                    tv.setOnClickListener{
+                    tv.setOnClickListener {
                         viewModel.chooseAnswer(tv.text.toString().toInt())
                     }
                 }
@@ -94,7 +91,7 @@ class GameFragment : Fragment() {
             enoughRightAnswers.observe(viewLifecycleOwner) {
                 binding.tvAnswersProgress.setTextColor(getColorByState(it))
             }
-            progressAnswers.observe(viewLifecycleOwner){
+            progressAnswers.observe(viewLifecycleOwner) {
                 binding.tvAnswersProgress.text = it
             }
             enoughPercentRightAnswers.observe(viewLifecycleOwner) {
@@ -105,14 +102,13 @@ class GameFragment : Fragment() {
                 binding.tvTimer.text = it
             }
 
-            minPercent.observe(viewLifecycleOwner){
+            minPercent.observe(viewLifecycleOwner) {
                 binding.progressBar.secondaryProgress = it
             }
 
-            gameResult.observe(viewLifecycleOwner){
+            gameResult.observe(viewLifecycleOwner) {
                 launchGameFinishedFragment(gameResult = it)
             }
-            startGame(level)
         }
     }
 
