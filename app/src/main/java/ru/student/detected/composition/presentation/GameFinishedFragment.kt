@@ -4,10 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import ru.student.detected.composition.R
 import ru.student.detected.composition.databinding.FragmentGameFinishedBinding
 import ru.student.detected.composition.domain.entity.GameResult
 
@@ -35,51 +33,9 @@ class GameFinishedFragment : Fragment() {
 
     private fun setGameResultViews() {
         with(binding) {
-            buttonRetry.setOnClickListener {
-                retryGame()
-            }
-
-            tvRequiredAnswers.text =
-                String.format(
-                    getString(R.string.required_score),
-                    gameResult.gameSettings.minCountOfRightAnswers
-                )
-
-            tvRequiredPercentage.text =
-                String.format(
-                    getString(R.string.required_percentage),
-                    gameResult.gameSettings.minPercentOfRightAnswers
-                )
-
-            tvScoreAnswers.text =
-                String.format(
-                    getString(R.string.score_answers),
-                    gameResult.countOfRightAnswers
-                )
-
-            tvScorePercentage.text =
-                String.format(
-                    getString(R.string.score_percentage),
-                    getScorePercentage()
-                )
-
-            emojiResult.setImageDrawable(
-                ContextCompat.getDrawable(
-                    requireContext(),
-                    getEmojiDrawable()
-                )
-            )
+            gameResult = this@GameFinishedFragment.gameResult
+            buttonRetry.setOnClickListener { retryGame() }
         }
-    }
-
-    private fun getEmojiDrawable() =
-        if (gameResult.winner) R.drawable.ic_smile else R.drawable.ic_sad
-
-    private fun getScorePercentage(): Int {
-        return if (gameResult.countOfQuestions != 0)
-            ((gameResult.countOfRightAnswers * 100.0) / gameResult.countOfQuestions).toInt()
-        else 0
-
     }
 
 
