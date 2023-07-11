@@ -1,28 +1,23 @@
 package ru.student.detected.composition.presentation
 
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
+import androidx.navigation.fragment.findNavController
 import ru.student.detected.composition.R
 import ru.student.detected.composition.databinding.FragmentGameFinishedBinding
 import ru.student.detected.composition.domain.entity.GameResult
 
 class GameFinishedFragment : Fragment() {
     private var _binding: FragmentGameFinishedBinding? = null
-    private lateinit var gameResult: GameResult
+    private val gameResult: GameResult by lazy {
+        GameFinishedFragmentArgs.fromBundle(requireArguments()).gameResult
+    }
     private val binding: FragmentGameFinishedBinding
         get() = _binding ?: throw RuntimeException("FragmentGameFinishedBinding == null")
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        parseArgs()
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,9 +30,7 @@ class GameFinishedFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        handleBackToRetry()
         setGameResultViews()
-
     }
 
     private fun setGameResultViews() {
@@ -89,48 +82,14 @@ class GameFinishedFragment : Fragment() {
 
     }
 
-    private fun handleBackToRetry() {
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    retryGame()
-                }
-            })
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
-    private fun parseArgs() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-            requireArguments().getParcelable<GameResult>(KEY_GAME_RESULT)?.let {
-                gameResult = it
-            }
-        } else {
-            requireArguments().getParcelable(KEY_GAME_RESULT, GameResult::class.java)?.let {
-                gameResult = it
-            }
-        }
-    }
 
     private fun retryGame() {
-        requireActivity().supportFragmentManager.popBackStack(
-            GameFragment.NAME,
-            FragmentManager.POP_BACK_STACK_INCLUSIVE
-        )
-    }
-
-    companion object {
-        private const val KEY_GAME_RESULT = "GAME_RESULT"
-
-        fun newInstance(gameResult: GameResult): GameFinishedFragment {
-            return GameFinishedFragment().apply {
-                arguments = Bundle().apply {
-                    putParcelable(KEY_GAME_RESULT, gameResult)
-                }
-            }
-        }
+        findNavController().popBackStack()
     }
 }
