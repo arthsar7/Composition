@@ -6,8 +6,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import ru.student.detected.composition.R
 import ru.student.detected.composition.databinding.FragmentGameFinishedBinding
 import ru.student.detected.composition.domain.entity.GameResult
 
@@ -33,15 +35,67 @@ class GameFinishedFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        handleBackToRetry()
+        setGameResultViews()
+
+    }
+
+    private fun setGameResultViews() {
+        with(binding) {
+            buttonRetry.setOnClickListener {
+                retryGame()
+            }
+
+            tvRequiredAnswers.text =
+                String.format(
+                    getString(R.string.required_score),
+                    gameResult.gameSettings.minCountOfRightAnswers
+                )
+
+            tvRequiredPercentage.text =
+                String.format(
+                    getString(R.string.required_percentage),
+                    gameResult.gameSettings.minPercentOfRightAnswers
+                )
+
+            tvScoreAnswers.text =
+                String.format(
+                    getString(R.string.score_answers),
+                    gameResult.countOfRightAnswers
+                )
+
+            tvScorePercentage.text =
+                String.format(
+                    getString(R.string.score_percentage),
+                    getScorePercentage()
+                )
+
+            emojiResult.setImageDrawable(
+                ContextCompat.getDrawable(
+                    requireContext(),
+                    getEmojiDrawable()
+                )
+            )
+        }
+    }
+
+    private fun getEmojiDrawable() =
+        if (gameResult.winner) R.drawable.ic_smile else R.drawable.ic_sad
+
+    private fun getScorePercentage(): Int {
+        return if (gameResult.countOfQuestions != 0)
+            ((gameResult.countOfRightAnswers * 100.0) / gameResult.countOfQuestions).toInt()
+        else 0
+
+    }
+
+    private fun handleBackToRetry() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     retryGame()
                 }
             })
-        binding.buttonRetry.setOnClickListener{
-            retryGame()
-        }
     }
 
     override fun onDestroyView() {
@@ -50,12 +104,11 @@ class GameFinishedFragment : Fragment() {
     }
 
     private fun parseArgs() {
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             requireArguments().getParcelable<GameResult>(KEY_GAME_RESULT)?.let {
                 gameResult = it
             }
-        }
-        else{
+        } else {
             requireArguments().getParcelable(KEY_GAME_RESULT, GameResult::class.java)?.let {
                 gameResult = it
             }
